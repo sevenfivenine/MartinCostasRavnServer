@@ -35,16 +35,7 @@ public class Server
 			System.out.println("Waiting for client on port " + serverSocket.getLocalPort() + "...");
 			Socket clientSocket = serverSocket.accept();
 			clientSockets.add( clientSocket );
-			onClientConnection();
-
-			System.out.println("Just connected to " + clientSocket.getRemoteSocketAddress());
-			DataInputStream in = new DataInputStream( clientSocket.getInputStream());
-
-			System.out.println(in.readUTF());
-			DataOutputStream out = new DataOutputStream( clientSocket.getOutputStream());
-			out.writeUTF("Thank you for connecting to " + clientSocket.getLocalSocketAddress() + "\nGoodbye!");
-
-			//TODO close!
+			onClientConnection( clientSocket );
 		}
 
 	}
@@ -53,8 +44,33 @@ public class Server
 	/**
 	 * Called when a client connects to the server
 	 */
-	private void onClientConnection()
+	private void onClientConnection(Socket clientSocket) throws IOException
 	{
+		System.out.println("Just connected to " + clientSocket.getRemoteSocketAddress());
+		DataInputStream in = new DataInputStream( clientSocket.getInputStream());
+
+		JSONObject jsonRequest = new JSONObject(in.readUTF());
+
+		Request request = Request.JSONtoRequest( jsonRequest );
+
+		if ( request.getRequestCode() == Request.REQUEST_CODE_LIST )
+		{
+			JSONArray dataJSONarray = parseData( Datastore.data );
+			String dataString = dataJSONarray.toString();
+			sendResponse( clientSocket, dataString );
+		}
+
+		//TODO close!
+
+	}
+
+
+	private void sendResponse(Socket clientSocket, String response) throws IOException
+	{
+		//System.out.println(in.readUTF());
+		DataOutputStream out = new DataOutputStream( clientSocket.getOutputStream());
+		//out.writeUTF("Thank you for connecting to " + clientSocket.getLocalSocketAddress() + "\nGoodbye!");
+		out.writeUTF( response );
 
 	}
 
@@ -68,7 +84,7 @@ public class Server
 	}
 
 
-	public void parseData(ArrayList<Media> data)
+	public JSONArray parseData(ArrayList<Media> data)
 	{
 		JSONArray jsonArray = new JSONArray();
 
@@ -77,7 +93,7 @@ public class Server
 			jsonArray.put( item.toJSONObject() );
 		}
 
-
+		return jsonArray;
 	}
 
 
