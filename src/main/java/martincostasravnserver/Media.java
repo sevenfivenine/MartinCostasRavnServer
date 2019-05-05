@@ -1,7 +1,17 @@
 package martincostasravnserver;
 
+import org.json.JSONObject;
+
 public class Media
 {
+	public static final String KEY_TYPE = "type";
+	public static final String KEY_TITLE = "title";
+	public static final String KEY_AUTHOR = "author";
+	public static final String KEY_DATE = "date";
+	public static final String KEY_ID = "id";
+	public static final String KEY_VIEW_COUNT = "viewCount";
+	public static final String KEY_VIEW_ORDER = "viewOrder";
+
 	private String type, title, author, date;
 	private int id, viewCount, viewOrder;
 
@@ -15,6 +25,22 @@ public class Media
 		this.id = id;
 		this.viewCount = viewCount;
 		this.viewOrder = viewOrder;
+	}
+
+
+	public JSONObject toJSONObject()
+	{
+		JSONObject jsonObject = new JSONObject();
+
+		jsonObject.put( KEY_ID, id );
+		jsonObject.put( KEY_TYPE, type );
+		jsonObject.put( KEY_TITLE, title );
+		jsonObject.put( KEY_AUTHOR, author );
+		jsonObject.put( KEY_DATE, date );
+		jsonObject.put( KEY_VIEW_COUNT, viewCount );
+		jsonObject.put( KEY_VIEW_ORDER, viewOrder );
+
+		return jsonObject;
 	}
 
 

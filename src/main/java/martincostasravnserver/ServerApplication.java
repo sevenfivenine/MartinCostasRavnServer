@@ -14,9 +14,9 @@ public class ServerApplication
 
 		Server server = new Server();
 
-		// Bind port 8381
 		try
 		{
+			// Bind port 8381 and wait for clients
 			server.bindPort(PORT_NUMBER);
 		}
 		catch ( IOException e )
