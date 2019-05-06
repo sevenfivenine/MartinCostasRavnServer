@@ -109,12 +109,19 @@ public class Server
 				break;
 		}
 
-		//System.out.println(in.readUTF());
 		DataOutputStream out = new DataOutputStream( clientSocket.getOutputStream());
-		//out.writeUTF("Thank you for connecting to " + clientSocket.getLocalSocketAddress() + "\nGoodbye!");
 		out.writeUTF( String.valueOf( responseCode ) );
-		out.writeUTF( response );
 
+		// OK, ERROR, or PUSH has no String response
+		if ( response == null )
+		{
+
+		}
+
+		else
+		{
+			out.writeUTF( response );
+		}
 	}
 
 
