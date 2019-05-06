@@ -22,4 +22,10 @@ public class Datastore
 		data.add( new Media( "Exoticism", "Turandot", "Giacomo Puccini", "1926", 0, 0, 0 ));
 	}
 
+	public static void addRecord(Media record)
+	{
+		data.add( record );
+
+		ServerApplication.server.pushToClients();
+	}
 }

@@ -12,6 +12,12 @@ import org.json.JSONObject;
 
 public class Server
 {
+
+	public static final int RESPONSE_OK = 0;
+	public static final int RESPONSE_ERROR = 1;
+	public static final int RESPONSE_PUSH = 2;
+	public static final int RESPONSE_LIST = 3;
+
 	private ServerSocket serverSocket;
 	private ArrayList<Socket> clientSockets;
 	private boolean stopped;
@@ -57,7 +63,12 @@ public class Server
 		{
 			JSONArray dataJSONarray = parseData( Datastore.data );
 			String dataString = dataJSONarray.toString();
-			sendResponse( clientSocket, dataString );
+			sendResponse( RESPONSE_LIST, clientSocket, dataString );
+		}
+
+		else if ( request.getRequestCode() == Request.REQUEST_CODE_ADD )
+		{
+			Datastore.addRecord(request.getRecord());
 		}
 
 		//TODO close!
@@ -65,11 +76,43 @@ public class Server
 	}
 
 
-	private void sendResponse(Socket clientSocket, String response) throws IOException
+	/**
+	 * Send a push to notify clients data has been updated
+	 */
+	public void pushToClients()
 	{
+		for ( Socket clientSocket : clientSockets )
+		{
+			try
+			{
+				sendResponse( RESPONSE_PUSH, clientSocket, null );
+			}
+			catch ( IOException e )
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+
+
+	private void sendResponse(int responseCode, Socket clientSocket, String response) throws IOException
+	{
+		switch ( responseCode )
+		{
+			case RESPONSE_OK:
+				break;
+			case RESPONSE_ERROR:
+				break;
+			case RESPONSE_PUSH:
+				break;
+			case RESPONSE_LIST:
+				break;
+		}
+
 		//System.out.println(in.readUTF());
 		DataOutputStream out = new DataOutputStream( clientSocket.getOutputStream());
 		//out.writeUTF("Thank you for connecting to " + clientSocket.getLocalSocketAddress() + "\nGoodbye!");
+		out.writeUTF( String.valueOf( responseCode ) );
 		out.writeUTF( response );
 
 	}

@@ -117,7 +117,7 @@ public class Request
 
 		if ( jsonObject.has( KEY_RECORD ) )
 		{
-			request.setRecord( (Media) jsonObject.get( KEY_RECORD ) );
+			request.setRecord( Media.JSONtoMedia( (JSONObject) jsonObject.get( KEY_RECORD ) ) );
 		}
 
 		if ( jsonObject.has( KEY_ID ) )

@@ -8,11 +8,12 @@ import java.io.IOException;
 public class ServerApplication
 {
 	public static final int PORT_NUMBER = 8381;
+	public static Server server;
 
 	public static void main(String[] arg) {
 		System.out.println(Datastore.data);
 
-		Server server = new Server();
+		server = new Server();
 
 		try
 		{
