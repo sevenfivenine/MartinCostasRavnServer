@@ -85,7 +85,9 @@ public class Server
 		{
 			try
 			{
-				sendResponse( RESPONSE_PUSH, clientSocket, null );
+				JSONArray dataJSONarray = parseData( Datastore.data );
+				String dataString = dataJSONarray.toString();
+				sendResponse( RESPONSE_PUSH, clientSocket, dataString );
 			}
 			catch ( IOException e )
 			{
@@ -112,7 +114,7 @@ public class Server
 		DataOutputStream out = new DataOutputStream( clientSocket.getOutputStream());
 		out.writeUTF( String.valueOf( responseCode ) );
 
-		// OK, ERROR, or PUSH has no String response
+		// OK, ERROR has no String response
 		if ( response == null )
 		{
 
