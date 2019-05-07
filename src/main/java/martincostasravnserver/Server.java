@@ -49,6 +49,7 @@ public class Server
 
 	/**
 	 * Called when a client connects to the server
+	 * Processes requests
 	 */
 	private void onClientConnection(Socket clientSocket) throws IOException
 	{
@@ -69,6 +70,11 @@ public class Server
 		else if ( request.getRequestCode() == Request.REQUEST_CODE_ADD )
 		{
 			Datastore.addRecord(request.getRecord());
+		}
+
+		else if (request.getRequestCode() == Request.REQUEST_CODE_UPDATE )
+		{
+			Datastore.updateRecord(request.getRecord());
 		}
 
 		//TODO close!

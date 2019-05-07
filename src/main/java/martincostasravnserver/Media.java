@@ -3,24 +3,39 @@ package martincostasravnserver;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.UUID;
+
 public class Media
 {
-	public static final String KEY_TYPE = "type";
-	public static final String KEY_TITLE = "title";
-	public static final String KEY_AUTHOR = "author";
-	public static final String KEY_DATE = "date";
-	public static final String KEY_ID = "id";
+	public static final String KEY_TYPE       = "type";
+	public static final String KEY_TITLE      = "title";
+	public static final String KEY_AUTHOR     = "author";
+	public static final String KEY_DATE       = "date";
+	public static final String KEY_ID         = "id";
 	public static final String KEY_VIEW_COUNT = "viewCount";
 	public static final String KEY_VIEW_ORDER = "viewOrder";
 
 	private String type, title, author, date;
-	private int id, viewCount, viewOrder;
+	private UUID id;
+	private int  viewCount, viewOrder;
 
 
 	public Media()
 	{
-
+		this.id = UUID.randomUUID();
 	}
+
+
+	public Media(String type, String title, String author, String date)
+	{
+		this.type = type;
+		this.title = title;
+		this.author = author;
+		this.date = date;
+
+		this.id = UUID.randomUUID();
+	}
+
 
 	public Media(String type, String title, String author, String date, int id, int viewCount, int viewOrder)
 	{
@@ -28,7 +43,7 @@ public class Media
 		this.title = title;
 		this.author = author;
 		this.date = date;
-		this.id = id;
+		this.id = UUID.randomUUID();
 		this.viewCount = viewCount;
 		this.viewOrder = viewOrder;
 	}
@@ -49,11 +64,12 @@ public class Media
 		return jsonObject;
 	}
 
+
 	public static Media JSONtoMedia(JSONObject jsonObject) throws JSONException, ClassCastException
 	{
 		Media media = new Media();
 
-		media.setId( (Integer) jsonObject.get( KEY_ID ) );
+		media.setId( UUID.fromString( (String) jsonObject.get( KEY_ID ) ) );
 		media.setType( (String) jsonObject.get( KEY_TYPE ) );
 		media.setTitle( (String) jsonObject.get( KEY_TITLE ) );
 		media.setAuthor( (String) jsonObject.get( KEY_AUTHOR ) );
@@ -113,13 +129,13 @@ public class Media
 	}
 
 
-	public int getId()
+	public UUID getId()
 	{
 		return id;
 	}
 
 
-	public void setId(int id)
+	public void setId(UUID id)
 	{
 		this.id = id;
 	}
