@@ -123,6 +123,13 @@ public class Server
 		{
 			Datastore.updateRecord(request.getRecord());
 		}
+
+		else if ( request.getRequestCode() == Request.REQUEST_CODE_REMOVE )
+		{
+			int responseCode = Datastore.removeRecord(request.getId());
+
+			sendResponse( responseCode, clientSocket, null );
+		}
 	}
 
 

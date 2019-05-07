@@ -1,6 +1,10 @@
 package martincostasravnserver;
 
 import java.util.ArrayList;
+import java.util.UUID;
+
+import static martincostasravnserver.Server.RESPONSE_ERROR;
+import static martincostasravnserver.Server.RESPONSE_OK;
 
 /**
  * Volatile datastore that holds media
@@ -43,5 +47,32 @@ public class Datastore
 		}
 
 		ServerApplication.server.pushToClients();
+	}
+
+
+	public static int removeRecord(UUID id)
+	{
+		Media toRemove = null;
+
+		for ( Media m : data )
+		{
+			if ( m.getId().equals( id ) )
+			{
+				toRemove = m;
+				break;
+			}
+		}
+
+		if ( toRemove != null )
+		{
+			data.remove( toRemove );
+			ServerApplication.server.pushToClients();
+			return RESPONSE_OK;
+		}
+
+		else
+		{
+			return RESPONSE_ERROR;
+		}
 	}
 }

@@ -3,6 +3,8 @@ package martincostasravnserver;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.UUID;
+
 public class Request
 {
 	public static final int REQUEST_CODE_LIST   = 7001;
@@ -20,15 +22,16 @@ public class Request
 	public static final String NO_FIELD = "NO_FIELD";
 
 
-	private int   requestCode;
-	private Media record;
-	private int   id, order;
+	private int    requestCode;
+	private Media  record;
+	private UUID   id;
+	private int    order;
 	private String field;
 
 
 	public Request()
 	{
-		id = -1;
+		id = null;
 		order = -1;
 		field = NO_FIELD;
 	}
@@ -51,7 +54,7 @@ public class Request
 	}
 
 
-	public static Request generateRemoveRequest(int id)
+	public static Request generateRemoveRequest(UUID id)
 	{
 		Request request = new Request();
 		request.setRequestCode( REQUEST_CODE_REMOVE );
@@ -90,7 +93,7 @@ public class Request
 			jsonObject.put( KEY_RECORD, record );
 		}
 
-		if ( id != -1 )
+		if ( id != null )
 		{
 			jsonObject.put( KEY_ID, id );
 		}
@@ -122,7 +125,7 @@ public class Request
 
 		if ( jsonObject.has( KEY_ID ) )
 		{
-			request.setId( (Integer) jsonObject.get( KEY_ID ) );
+			request.setId( ( UUID.fromString( (String) jsonObject.get( KEY_ID ) ) ) );
 		}
 
 		if ( jsonObject.has( KEY_ORDER ) )
@@ -163,13 +166,13 @@ public class Request
 	}
 
 
-	public int getId()
+	public UUID getId()
 	{
 		return id;
 	}
 
 
-	public void setId(int id)
+	public void setId(UUID id)
 	{
 		this.id = id;
 	}
