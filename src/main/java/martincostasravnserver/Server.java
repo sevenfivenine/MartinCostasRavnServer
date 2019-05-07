@@ -19,8 +19,10 @@ public class Server
 	public static final int RESPONSE_LIST = 3;
 
 	private ServerSocket serverSocket;
-	private ArrayList<Socket> clientSockets;
+	private final ArrayList<Socket> clientSockets;
 	private boolean stopped;
+
+	private Thread listenThread;
 
 	public Server() {
 		clientSockets = new ArrayList<>();
@@ -36,11 +38,47 @@ public class Server
 	{
 		serverSocket = new ServerSocket( port );
 
+		listenThread = new Thread( () -> {
+			DataInputStream in;
+
+			while(!stopped)
+			{
+				synchronized ( clientSockets )
+				{
+					for ( Socket client : clientSockets )
+					{
+						try
+						{
+							in = new DataInputStream( client.getInputStream());
+
+							if ( in.available() > 0 )
+							{
+								System.out.println("New data from client");
+								JSONObject jsonRequest = new JSONObject(in.readUTF());
+								onReceiveRequest(client, jsonRequest);
+								System.out.println(Datastore.data.get( 0 ).getDate());
+							}
+						}
+						catch ( IOException e )
+						{
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		} );
+
+		listenThread.start();
+
 		while ( !stopped )
 		{
 			System.out.println("Waiting for client on port " + serverSocket.getLocalPort() + "...");
 			Socket clientSocket = serverSocket.accept();
-			clientSockets.add( clientSocket );
+
+			synchronized ( clientSockets )
+			{
+				clientSockets.add( clientSocket );
+			}
 			onClientConnection( clientSocket );
 		}
 
@@ -55,9 +93,18 @@ public class Server
 	{
 		System.out.println("Just connected to " + clientSocket.getRemoteSocketAddress());
 		DataInputStream in = new DataInputStream( clientSocket.getInputStream());
+		//JSONObject jsonRequest = new JSONObject(in.readUTF());
 
-		JSONObject jsonRequest = new JSONObject(in.readUTF());
+		//onReceiveRequest( clientSocket, jsonRequest );
 
+		pushToClient(clientSocket);
+
+		//TODO close!
+
+	}
+
+	private void onReceiveRequest(Socket clientSocket, JSONObject jsonRequest) throws IOException
+	{
 		Request request = Request.JSONtoRequest( jsonRequest );
 
 		if ( request.getRequestCode() == Request.REQUEST_CODE_LIST )
@@ -76,11 +123,22 @@ public class Server
 		{
 			Datastore.updateRecord(request.getRecord());
 		}
-
-		//TODO close!
-
 	}
 
+
+	public void pushToClient(Socket clientSocket)
+	{
+		try
+		{
+			JSONArray dataJSONarray = parseData( Datastore.data );
+			String dataString = dataJSONarray.toString();
+			sendResponse( RESPONSE_PUSH, clientSocket, dataString );
+		}
+		catch ( IOException e )
+		{
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Send a push to notify clients data has been updated
