@@ -73,6 +73,26 @@ public class Server
 
 		listenThread.start();
 
+		// Before shutdown, close all connections
+		// Unfortunately, shutdown hooks do not always run (i.e. SIGKILL, Windows terminate, or JVM crash)
+		Runtime.getRuntime().addShutdownHook( new Thread()
+		{
+			@Override
+			public void run()
+			{
+				System.out.println("Shutting down...");
+
+				try
+				{
+					closeAllConnections();
+				}
+				catch ( IOException e )
+				{
+					e.printStackTrace();
+				}
+			}
+		});
+
 		// On the main thread, wait for new clients
 		while ( !stopped )
 		{
