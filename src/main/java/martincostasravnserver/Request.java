@@ -141,7 +141,6 @@ public class Request
 		return request;
 	}
 
-
 	public int getRequestCode()
 	{
 		return requestCode;

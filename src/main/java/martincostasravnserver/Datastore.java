@@ -1,5 +1,6 @@
 package martincostasravnserver;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.UUID;
@@ -33,14 +34,23 @@ public class Datastore
 		data.add( new Media( "Exoticism", "Turandot", "Giacomo Puccini", "1926"));
 	}
 
-	public static void addRecord(Media record)
+	public static int addRecord(Media record)
 	{
 		data.add( record );
 
-		ServerApplication.server.pushToClients();
+		try
+		{
+			ServerApplication.server.pushToClients();
+			return RESPONSE_OK;
+		}
+		catch ( IOException e )
+		{
+			e.printStackTrace();
+			return RESPONSE_ERROR;
+		}
 	}
 
-	public static void updateRecord(Media record)
+	public static int updateRecord(Media record)
 	{
 		for ( Media m : data )
 		{
@@ -53,7 +63,16 @@ public class Datastore
 			}
 		}
 
-		ServerApplication.server.pushToClients();
+		try
+		{
+			ServerApplication.server.pushToClients();
+			return RESPONSE_OK;
+		}
+		catch ( IOException e )
+		{
+			e.printStackTrace();
+			return RESPONSE_ERROR;
+		}
 	}
 
 
@@ -72,9 +91,17 @@ public class Datastore
 
 		if ( toRemove != null )
 		{
-			data.remove( toRemove );
-			ServerApplication.server.pushToClients();
-			return RESPONSE_OK;
+			try
+			{
+				data.remove( toRemove );
+				ServerApplication.server.pushToClients();
+				return RESPONSE_OK;
+			}
+			catch ( IOException e )
+			{
+				e.printStackTrace();
+				return RESPONSE_ERROR;
+			}
 		}
 
 		else
@@ -86,8 +113,8 @@ public class Datastore
 
 	public static int sort(String field, int order)
 	{
-
-
+		try
+		{
 			if ( field.equals( KEY_DATE ) )
 			{
 				if ( order == ORDER_ASCENDING )
@@ -156,6 +183,11 @@ public class Datastore
 			{
 				return RESPONSE_ERROR;
 			}
-
+		}
+		catch ( IOException e )
+		{
+			e.printStackTrace();
+			return RESPONSE_ERROR;
+		}
 	}
 }

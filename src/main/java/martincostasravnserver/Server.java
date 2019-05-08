@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,24 +14,27 @@ import org.json.JSONObject;
 public class Server
 {
 
-	public static final int RESPONSE_OK = 0;
+	public static final int RESPONSE_OK    = 0;
 	public static final int RESPONSE_ERROR = 1;
-	public static final int RESPONSE_PUSH = 2;
-	public static final int RESPONSE_LIST = 3;
+	public static final int RESPONSE_PUSH  = 2;
+	public static final int RESPONSE_LIST  = 3;
 
-	private ServerSocket serverSocket;
+	private       ServerSocket      serverSocket;
 	private final ArrayList<Socket> clientSockets;
-	private boolean stopped;
+	private       boolean           stopped;
 
 	private Thread listenThread;
 
-	public Server() {
+
+	public Server()
+	{
 		clientSockets = new ArrayList<>();
 	}
 
 
 	/**
 	 * Binds server to selected port and waits for clients to connect
+	 *
 	 * @param port
 	 * @throws IOException
 	 */
@@ -38,10 +42,11 @@ public class Server
 	{
 		serverSocket = new ServerSocket( port );
 
+		// This thread listens for new requests from clients already connected
 		listenThread = new Thread( () -> {
 			DataInputStream in;
 
-			while(!stopped)
+			while ( !stopped )
 			{
 				synchronized ( clientSockets )
 				{
@@ -49,14 +54,12 @@ public class Server
 					{
 						try
 						{
-							in = new DataInputStream( client.getInputStream());
+							in = new DataInputStream( client.getInputStream() );
 
 							if ( in.available() > 0 )
 							{
-								System.out.println("New data from client");
-								JSONObject jsonRequest = new JSONObject(in.readUTF());
-								onReceiveRequest(client, jsonRequest);
-								System.out.println(Datastore.data.get( 0 ).getDate());
+								JSONObject jsonRequest = new JSONObject( in.readUTF() );
+								onReceiveRequest( client, jsonRequest );
 							}
 						}
 						catch ( IOException e )
@@ -70,9 +73,10 @@ public class Server
 
 		listenThread.start();
 
+		// On the main thread, wait for new clients
 		while ( !stopped )
 		{
-			System.out.println("Waiting for client on port " + serverSocket.getLocalPort() + "...");
+			System.out.println( "Waiting for new clients on port " + serverSocket.getLocalPort() + "..." );
 			Socket clientSocket = serverSocket.accept();
 
 			synchronized ( clientSockets )
@@ -87,64 +91,15 @@ public class Server
 
 	/**
 	 * Called when a client connects to the server
-	 * Processes requests
+	 * When a new client connects, we should PUSH data to it
 	 */
-	private void onClientConnection(Socket clientSocket) throws IOException
+	private void onClientConnection(Socket clientSocket)
 	{
-		System.out.println("Just connected to " + clientSocket.getRemoteSocketAddress());
-		DataInputStream in = new DataInputStream( clientSocket.getInputStream());
-		//JSONObject jsonRequest = new JSONObject(in.readUTF());
+		System.out.println( "Just connected to " + clientSocket.getRemoteSocketAddress() );
 
-		//onReceiveRequest( clientSocket, jsonRequest );
-
-		pushToClient(clientSocket);
-
-		//TODO close!
-
-	}
-
-	private void onReceiveRequest(Socket clientSocket, JSONObject jsonRequest) throws IOException
-	{
-		Request request = Request.JSONtoRequest( jsonRequest );
-
-		if ( request.getRequestCode() == Request.REQUEST_CODE_LIST )
-		{
-			JSONArray dataJSONarray = parseData( Datastore.data );
-			String dataString = dataJSONarray.toString();
-			sendResponse( RESPONSE_LIST, clientSocket, dataString );
-		}
-
-		else if ( request.getRequestCode() == Request.REQUEST_CODE_ADD )
-		{
-			Datastore.addRecord(request.getRecord());
-		}
-
-		else if (request.getRequestCode() == Request.REQUEST_CODE_UPDATE )
-		{
-			Datastore.updateRecord(request.getRecord());
-		}
-
-		else if ( request.getRequestCode() == Request.REQUEST_CODE_REMOVE )
-		{
-			int responseCode = Datastore.removeRecord(request.getId());
-
-			sendResponse( responseCode, clientSocket, null );
-		}
-
-		else if ( request.getRequestCode() == Request.REQUEST_CODE_SORT )
-		{
-			Datastore.sort(request.getField(), request.getOrder());
-		}
-	}
-
-
-	public void pushToClient(Socket clientSocket)
-	{
 		try
 		{
-			JSONArray dataJSONarray = parseData( Datastore.data );
-			String dataString = dataJSONarray.toString();
-			sendResponse( RESPONSE_PUSH, clientSocket, dataString );
+			pushToClient( clientSocket );
 		}
 		catch ( IOException e )
 		{
@@ -152,63 +107,96 @@ public class Server
 		}
 	}
 
+
 	/**
-	 * Send a push to notify clients data has been updated
+	 * On receiving a request, process and send a response
+	 *
+	 * @param clientSocket
+	 * @param jsonRequest
+	 * @throws IOException
 	 */
-	public void pushToClients()
+	private void onReceiveRequest(Socket clientSocket, JSONObject jsonRequest) throws IOException
 	{
-		for ( Socket clientSocket : clientSockets )
+		Request request = Request.JSONtoRequest( jsonRequest );
+
+		System.out.println( "Request code " + request.getRequestCode() + " received from client " + clientSocket.getRemoteSocketAddress() );
+
+		if ( request.getRequestCode() == Request.REQUEST_CODE_LIST )
 		{
-			try
-			{
-				JSONArray dataJSONarray = parseData( Datastore.data );
-				String dataString = dataJSONarray.toString();
-				sendResponse( RESPONSE_PUSH, clientSocket, dataString );
-			}
-			catch ( IOException e )
-			{
-				e.printStackTrace();
-			}
+			JSONArray dataJSONarray = parseData( Datastore.data );
+			String dataString = dataJSONarray.toString();
+
+			sendResponse( RESPONSE_LIST, clientSocket, dataString );
+		}
+
+		else if ( request.getRequestCode() == Request.REQUEST_CODE_ADD )
+		{
+			int responseCode = Datastore.addRecord( request.getRecord() );
+
+			sendResponse( responseCode, clientSocket, null );
+		}
+
+		else if ( request.getRequestCode() == Request.REQUEST_CODE_UPDATE )
+		{
+			int responseCode = Datastore.updateRecord( request.getRecord() );
+
+			sendResponse( responseCode, clientSocket, null );
+		}
+
+		else if ( request.getRequestCode() == Request.REQUEST_CODE_REMOVE )
+		{
+			int responseCode = Datastore.removeRecord( request.getId() );
+
+			sendResponse( responseCode, clientSocket, null );
+		}
+
+		else if ( request.getRequestCode() == Request.REQUEST_CODE_SORT )
+		{
+			int responseCode = Datastore.sort( request.getField(), request.getOrder() );
+
+			sendResponse( responseCode, clientSocket, null );
 		}
 	}
 
 
 	private void sendResponse(int responseCode, Socket clientSocket, String response) throws IOException
 	{
-		switch ( responseCode )
-		{
-			case RESPONSE_OK:
-				break;
-			case RESPONSE_ERROR:
-				break;
-			case RESPONSE_PUSH:
-				break;
-			case RESPONSE_LIST:
-				break;
-		}
+		System.out.println( "Sending response code " + responseCode + " to client " + clientSocket.getRemoteSocketAddress() );
 
-		DataOutputStream out = new DataOutputStream( clientSocket.getOutputStream());
+		DataOutputStream out = new DataOutputStream( clientSocket.getOutputStream() );
 		out.writeUTF( String.valueOf( responseCode ) );
 
-		// OK, ERROR has no String response
-		if ( response == null )
-		{
-
-		}
-
-		else
+		// Send response data if present
+		if ( response != null )
 		{
 			out.writeUTF( response );
 		}
 	}
 
 
-	/**
-	 * Called when a client sends a request to the server
-	 */
-	private void onClientRequest()
+	public void pushToClient(Socket clientSocket) throws IOException
 	{
+		System.out.println( "Pushing to new client " + clientSocket.getRemoteSocketAddress() );
 
+		JSONArray dataJSONarray = parseData( Datastore.data );
+		String dataString = dataJSONarray.toString();
+		sendResponse( RESPONSE_PUSH, clientSocket, dataString );
+	}
+
+
+	/**
+	 * Send a push to notify clients data has been updated
+	 */
+	public void pushToClients() throws IOException
+	{
+		System.out.println( "Pushing to " + clientSockets.size() + " clients" );
+
+		for ( Socket clientSocket : clientSockets )
+		{
+			JSONArray dataJSONarray = parseData( Datastore.data );
+			String dataString = dataJSONarray.toString();
+			sendResponse( RESPONSE_PUSH, clientSocket, dataString );
+		}
 	}
 
 
