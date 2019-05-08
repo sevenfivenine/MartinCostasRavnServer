@@ -15,6 +15,9 @@ public class Media
 	public static final String KEY_VIEW_COUNT = "viewCount";
 	public static final String KEY_VIEW_ORDER = "viewOrder";
 
+	public static final int ORDER_ASCENDING = 1;
+	public static final int ORDER_DESCENDING = 0;
+
 	private String type, title, author, date;
 	private UUID id;
 	private int  viewCount, viewOrder;

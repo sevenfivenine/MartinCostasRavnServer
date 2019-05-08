@@ -1,8 +1,15 @@
 package martincostasravnserver;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.UUID;
 
+import static martincostasravnserver.Media.KEY_AUTHOR;
+import static martincostasravnserver.Media.KEY_DATE;
+import static martincostasravnserver.Media.KEY_TITLE;
+import static martincostasravnserver.Media.KEY_TYPE;
+import static martincostasravnserver.Media.ORDER_ASCENDING;
+import static martincostasravnserver.Media.ORDER_DESCENDING;
 import static martincostasravnserver.Server.RESPONSE_ERROR;
 import static martincostasravnserver.Server.RESPONSE_OK;
 
@@ -74,5 +81,81 @@ public class Datastore
 		{
 			return RESPONSE_ERROR;
 		}
+	}
+
+
+	public static int sort(String field, int order)
+	{
+
+
+			if ( field.equals( KEY_DATE ) )
+			{
+				if ( order == ORDER_ASCENDING )
+				{
+					data.sort( Comparator.comparing( Media::getDate ) );
+				}
+
+				else if ( order == ORDER_DESCENDING )
+				{
+					data.sort( Comparator.comparing( Media::getDate ).reversed() );
+				}
+
+				ServerApplication.server.pushToClients();
+				return RESPONSE_OK;
+			}
+
+			else if ( field.equals( KEY_TITLE ) )
+			{
+				if ( order == ORDER_ASCENDING )
+				{
+					data.sort( Comparator.comparing( Media::getTitle ) );
+				}
+
+				else if ( order == ORDER_DESCENDING )
+				{
+					data.sort( Comparator.comparing( Media::getTitle ).reversed() );
+				}
+
+				ServerApplication.server.pushToClients();
+				return RESPONSE_OK;
+			}
+
+			else if ( field.equals( KEY_AUTHOR ) )
+			{
+				if ( order == ORDER_ASCENDING )
+				{
+					data.sort( Comparator.comparing( Media::getAuthor ) );
+				}
+
+				else if ( order == ORDER_DESCENDING )
+				{
+					data.sort( Comparator.comparing( Media::getAuthor ).reversed() );
+				}
+
+				ServerApplication.server.pushToClients();
+				return RESPONSE_OK;
+			}
+
+			else if ( field.equals( KEY_TYPE ) )
+			{
+				if ( order == ORDER_ASCENDING )
+				{
+					data.sort( Comparator.comparing( Media::getType ) );
+				}
+
+				else if ( order == ORDER_DESCENDING )
+				{
+					data.sort( Comparator.comparing( Media::getType ).reversed() );
+				}
+
+				ServerApplication.server.pushToClients();
+				return RESPONSE_OK;
+			}
+
+			else
+			{
+				return RESPONSE_ERROR;
+			}
+
 	}
 }

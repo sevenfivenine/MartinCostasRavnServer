@@ -130,6 +130,11 @@ public class Server
 
 			sendResponse( responseCode, clientSocket, null );
 		}
+
+		else if ( request.getRequestCode() == Request.REQUEST_CODE_SORT )
+		{
+			Datastore.sort(request.getField(), request.getOrder());
+		}
 	}
 
 
