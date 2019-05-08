@@ -36,6 +36,8 @@ public class Datastore
 
 	public static int addRecord(Media record)
 	{
+		System.out.println("Adding record: " + record.toJSONObject().toString());
+
 		data.add( record );
 
 		try
@@ -52,6 +54,8 @@ public class Datastore
 
 	public static int updateRecord(Media record)
 	{
+		System.out.println("Updating record: " + record.toJSONObject().toString());
+
 		for ( Media m : data )
 		{
 			if ( m.getId().equals( record.getId() ) )
@@ -93,6 +97,8 @@ public class Datastore
 		{
 			try
 			{
+				System.out.println("Removing record: " + toRemove.toJSONObject().toString());
+
 				data.remove( toRemove );
 				ServerApplication.server.pushToClients();
 				return RESPONSE_OK;
@@ -113,6 +119,8 @@ public class Datastore
 
 	public static int sort(String field, int order)
 	{
+		System.out.println("Sorting by field " + field + ", order " + order);
+
 		try
 		{
 			if ( field.equals( KEY_DATE ) )

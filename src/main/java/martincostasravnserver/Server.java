@@ -11,6 +11,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.xml.crypto.Data;
+
 public class Server
 {
 
@@ -209,7 +211,14 @@ public class Server
 	 */
 	public void pushToClients() throws IOException
 	{
-		System.out.println( "Pushing to " + clientSockets.size() + " clients" );
+		System.out.println("\nCurrent data:");
+
+		for (Media m : Datastore.data )
+		{
+			System.out.println(m.toJSONObject().toString());
+		}
+
+		System.out.println( "\nPushing to " + clientSockets.size() + " clients" );
 
 		for ( Socket clientSocket : clientSockets )
 		{
