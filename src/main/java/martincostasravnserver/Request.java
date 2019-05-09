@@ -7,6 +7,7 @@ import java.util.UUID;
 
 public class Request
 {
+	public static final int REQUEST_CODE_CLOSE  = 6999;
 	public static final int REQUEST_CODE_LIST   = 7001;
 	public static final int REQUEST_CODE_ADD    = 7002;
 	public static final int REQUEST_CODE_REMOVE = 7003;

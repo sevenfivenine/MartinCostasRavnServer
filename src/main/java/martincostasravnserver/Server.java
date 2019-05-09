@@ -52,10 +52,18 @@ public class Server
 			{
 				synchronized ( clientSockets )
 				{
+					Socket closed = null;
+
 					for ( Socket client : clientSockets )
 					{
 						try
 						{
+							// Closed client. Remove from clientSockets
+							if ( client.isOutputShutdown() )
+							{
+								closed = client;
+							}
+
 							in = new DataInputStream( client.getInputStream() );
 
 							if ( in.available() > 0 )
@@ -68,6 +76,11 @@ public class Server
 						{
 							e.printStackTrace();
 						}
+					}
+
+					if ( closed != null )
+					{
+						clientSockets.remove( closed );
 					}
 				}
 			}
@@ -177,6 +190,12 @@ public class Server
 			int responseCode = Datastore.sort( request.getField(), request.getOrder() );
 
 			sendResponse( responseCode, clientSocket, null );
+		}
+
+		else if ( request.getRequestCode() == Request.REQUEST_CODE_CLOSE )
+		{
+			clientSocket.close();
+			clientSockets.remove( clientSocket );
 		}
 	}
 
