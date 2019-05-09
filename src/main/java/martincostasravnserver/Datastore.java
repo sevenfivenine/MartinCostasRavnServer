@@ -24,12 +24,12 @@ public class Datastore
 	static {
 		data.add( new Media( "Opera Buffa", "The Marriage of Figaro", "Mozart", "1786"));
 		data.add( new Media( "Dramma Giocoso", "Don Giovanni", "Mozart", "1787"));
-		data.add( new Media( "Opera Buffa", "Così Fan Tutte", "Mozart", "1789"));
+		data.add( new Media( "Opera Buffa", "Cosi Fan Tutte", "Mozart", "1789"));
 		data.add( new Media( "Romanticism", "Tristan und Isolde", "Richard Wagner", "1865"));
 		data.add( new Media( "Historical Drama", "La Traviata", "Giuseppe Verdi", "1853"));
 		data.add( new Media( "Historical Drama", "Otello", "Giuseppe Verdi", "1887"));
 		data.add( new Media( "Historical Drama", "Aida", "Giuseppe Verdi", "1871"));
-		data.add( new Media( "Verism", "La Bohème", "Giacomo Puccini", "1895"));
+		data.add( new Media( "Verism", "La Boheme", "Giacomo Puccini", "1895"));
 		data.add( new Media( "Tragedy", "Tosca", "Giacomo Puccini", "1900"));
 		data.add( new Media( "Exoticism", "Turandot", "Giacomo Puccini", "1926"));
 	}
