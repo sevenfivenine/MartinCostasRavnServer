@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,16 +25,16 @@ public class Server
 	public static final int RESPONSE_PUSH  = 2;
 	public static final int RESPONSE_LIST  = 3;
 
-	private       ServerSocket      serverSocket;
-	private final ArrayList<Socket> clientSockets;
-	private       boolean           stopped;
+	private       ServerSocket serverSocket;
+	private final List<Socket> clientSockets;
+	private       boolean      stopped;
 
 	private Thread listenThread;
 
 
 	public Server()
 	{
-		clientSockets = new ArrayList<>();
+		clientSockets = Collections.synchronizedList(new ArrayList<Socket>());
 	}
 
 
@@ -54,10 +58,13 @@ public class Server
 				{
 					Socket closed = null;
 
-					for ( Socket client : clientSockets )
+					Iterator<Socket> itr = clientSockets.iterator();
+					while (itr.hasNext())
 					{
 						try
 						{
+							Socket client = itr.next();
+
 							// Closed client. Remove from clientSockets
 							if ( client.isOutputShutdown() )
 							{
